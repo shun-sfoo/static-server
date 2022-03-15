@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Avatar, Button, List } from 'antd';
 import {
   FileZipTwoTone,
@@ -10,14 +10,17 @@ import {
 } from '@ant-design/icons';
 import qs from 'qs';
 
-interface Data {
-  list: {
-    name: string;
-    path_uri: string;
-    ext: string;
-    is_file: boolean;
-    last_modified: string;
-  }[];
+export interface PathInfo {
+  name: string;
+  path_uri: string;
+  ext: string;
+  is_file: boolean;
+  last_modified: string;
+}
+
+interface PathProps {
+  list: PathInfo[];
+  setList: any;
 }
 
 const apiUrl = process.env.REACT_APP_API_URL;
@@ -40,7 +43,7 @@ const get_icon = (is_file: boolean, ext: string) => {
   return <FolderOpenTwoTone />;
 };
 
-export const PathList = ({ list }: Data) => {
+export const PathList = ({ list, setList }: PathProps) => {
   return (
     <List
       bordered={true}
@@ -55,17 +58,29 @@ export const PathList = ({ list }: Data) => {
                 <Button
                   type="link"
                   onClick={() => {
-                    window
-                      .fetch(`${apiUrl}/file?${qs.stringify(item)}`)
-                      .then(async (response) => {
-                        response.blob().then((blob) => {
-                          let url = window.URL.createObjectURL(blob);
-                          let a = document.createElement('a');
-                          a.href = url;
-                          a.download = item.name;
-                          a.click();
+                    if (item.is_file) {
+                      window
+                        .fetch(`${apiUrl}/file?${qs.stringify(item)}`)
+                        .then(async (response) => {
+                          response.blob().then((blob) => {
+                            let url = window.URL.createObjectURL(blob);
+                            let a = document.createElement('a');
+                            a.href = url;
+                            a.download = item.name;
+                            a.click();
+                          });
                         });
-                      });
+                    } else {
+                      window
+                        .fetch(`${apiUrl}/folder?${qs.stringify(item)}`)
+                        .then(async (response) => {
+                          const data = await response.json();
+                          if (response.ok) {
+                            console.log(data);
+                            setList(data);
+                          }
+                        });
+                    }
                   }}
                 >
                   {item.name}

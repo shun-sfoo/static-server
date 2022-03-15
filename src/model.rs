@@ -25,7 +25,7 @@ pub struct PathInfo {
     pub path_uri: String,
     pub ext: String,
     pub is_file: bool,
-    pub last_modified: i64,
+    pub last_modified: String,
 }
 
 #[derive(RustEmbed)]
