@@ -1,0 +1,20 @@
+[package]
+name = "static-server"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+axum = "0.4.8"
+tokio = { version = "1.17.0", features = ["full"] }
+tower = "0.4.12"
+tower-http = { version = "0.2.4", features = ["fs", "cors", "trace"] }
+tracing = "0.1.31"
+tracing-subscriber = "0.3.9"
+dotenv = "0.15.0"
+serde = { version = "1.0.136", features = ["derive"] }
+clap = { version = "3.1.6", features = ["derive"] }
+rust-embed = "6.3.0"
+mime_guess = "2.0.4"
+local-ip-address = "0.4.4"
