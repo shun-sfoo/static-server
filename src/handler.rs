@@ -11,7 +11,7 @@ use tokio::fs;
 use tower::ServiceExt;
 use tower_http::services::ServeFile;
 
-use crate::model::{PathInfo, StaticFile, StaticServerConfig};
+use crate::model::{PathInfo, QueryPath, StaticFile, StaticServerConfig};
 
 pub async fn index_handler() -> impl IntoResponse {
     static_handler("/index.html".parse::<Uri>().unwrap()).await
@@ -32,20 +32,15 @@ pub async fn root_path(Extension(cfg): Extension<Arc<StaticServerConfig>>) -> im
     show_path_list(&root_dir).await
 }
 
-pub async fn visit_folder(Json(data): Json<PathInfo>) -> impl IntoResponse {
-    let path = Path::new(&data.path_uri);
+pub async fn visit_folder(Json(query): Json<QueryPath>) -> impl IntoResponse {
+    let path = Path::new(&query.path);
     show_path_list(&path).await
 }
 
-pub async fn download_file(Json(data): Json<PathInfo>) -> impl IntoResponse {
-    let svc = ServeFile::new(data.path_uri);
+pub async fn download_file(Json(query): Json<QueryPath>) -> impl IntoResponse {
+    let svc = ServeFile::new(&query.path);
     let res = svc.oneshot(Request::new(Body::empty())).await.unwrap();
     res.map(axum::body::boxed)
-}
-
-pub async fn folder(axum::extract::Path(path): axum::extract::Path<String>) -> impl IntoResponse {
-    let path = Path::new(&path);
-    show_path_list(&path).await
 }
 
 async fn show_path_list(path: &Path) -> impl IntoResponse {

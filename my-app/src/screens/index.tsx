@@ -19,10 +19,7 @@ export interface PathInfo {
 
 interface PathProps {
   list: PathInfo[];
-  path: String;
   setList: any;
-  setPath: any;
-  setPre: any;
 }
 
 const apiUrl = process.env.REACT_APP_API_URL;
@@ -45,13 +42,7 @@ const get_icon = (is_file: boolean, ext: string) => {
   return <FolderOpenTwoTone />;
 };
 
-export const PathList = ({
-  list,
-  setList,
-  setPre,
-  setPath,
-  path,
-}: PathProps) => {
+export const PathList = ({ list, setList }: PathProps) => {
   return (
     <List
       bordered={true}
@@ -73,7 +64,9 @@ export const PathList = ({
                           headers: {
                             'Content-Type': 'application/json',
                           },
-                          body: JSON.stringify(item),
+                          body: JSON.stringify({
+                            path: item.path_uri,
+                          }),
                         })
                         .then(async (response) => {
                           response.blob().then((blob) => {
@@ -91,15 +84,15 @@ export const PathList = ({
                           headers: {
                             'Content-Type': 'application/json',
                           },
-                          body: JSON.stringify(item),
+                          body: JSON.stringify({
+                            path: item.path_uri,
+                          }),
                         })
                         .then(async (response) => {
                           const data = await response.json();
                           if (response.ok) {
                             console.log(data);
                             setList(data);
-                            setPath(item.path_uri);
-                            setPre(path);
                           }
                         });
                     }

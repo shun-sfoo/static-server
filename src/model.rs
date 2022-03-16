@@ -19,6 +19,11 @@ pub struct StaticServerConfig {
     pub root_dir: String,
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct QueryPath {
+    pub path: String,
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct PathInfo {
     pub name: String,

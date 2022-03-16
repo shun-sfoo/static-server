@@ -2,14 +2,11 @@ import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import './App.css';
 import { PathList } from './screens';
-import { Button } from 'antd';
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
 function App() {
   const [list, setList] = useState([]);
-  const [path, setPath] = useState<String>('');
-  const [pre, setPre] = useState<String>();
 
   useEffect(() => {
     window.fetch(`${apiUrl}/root_path`).then(async (response) => {
@@ -17,61 +14,13 @@ function App() {
       if (response.ok) {
         setList(data);
       }
-
-      window.fetch(`${apiUrl}/get_root`).then(async (response) => {
-        const data = await response.text();
-        if (response.ok) {
-          console.log(data);
-          setPath(data);
-        }
-      });
     });
   }, []);
 
   return (
     <div className="App">
       <Container>
-        <Header between={true}>
-          <HeaderLeft>
-            <h3>current path : {path}</h3>
-          </HeaderLeft>
-          <HeaderRight>
-            {pre ? (
-              <Button
-                type="link"
-                onClick={() => {
-                  window
-                    .fetch(`${apiUrl}/folder}`, {
-                      method: 'POST',
-                      body: JSON.stringify({
-                        param: pre,
-                      }),
-                    })
-                    .then(async (response) => {
-                      const data = await response.json();
-                      if (response.ok) {
-                        console.log('pre', pre);
-                        setPath(pre);
-                        setList(data);
-                      }
-                    });
-                }}
-              >
-                click to upper
-              </Button>
-            ) : (
-              <h3>this is root dir</h3>
-            )}
-          </HeaderRight>
-          <HeaderMiddler>upload</HeaderMiddler>
-        </Header>
-        <PathList
-          list={list}
-          setList={setList}
-          setPath={setPath}
-          setPre={setPre}
-          path={path}
-        />
+        <PathList list={list} setList={setList} />
       </Container>
     </div>
   );

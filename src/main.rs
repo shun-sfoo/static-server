@@ -12,9 +12,7 @@ use local_ip_address::local_ip;
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::{
-    handler::{
-        download_file, folder, get_root, index_handler, root_path, static_handler, visit_folder,
-    },
+    handler::{download_file, get_root, index_handler, root_path, static_handler, visit_folder},
     model::{Args, StaticServerConfig},
 };
 
@@ -48,7 +46,6 @@ async fn main() {
         .route("/visit_folder", post(visit_folder))
         .route("/download_file", post(download_file))
         .route("/get_root", get(get_root))
-        .route("/folder/:prev", get(folder))
         .layer(cors)
         .layer(Extension(Arc::new(StaticServerConfig { root_dir })))
         .fallback(static_handler.into_service());
