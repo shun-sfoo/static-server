@@ -1,12 +1,20 @@
 use std::{net::SocketAddr, sync::Arc};
 
-use axum::{extract::Extension, handler::Handler, http::Method, routing::get, Router, Server};
+use axum::{
+    extract::Extension,
+    handler::Handler,
+    http::Method,
+    routing::{get, post},
+    Router, Server,
+};
 use clap::Parser;
 use local_ip_address::local_ip;
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::{
-    handler::{download, index_handler, index_or_content, static_handler, visit_folder},
+    handler::{
+        download_file, folder, get_root, index_handler, root_path, static_handler, visit_folder,
+    },
     model::{Args, StaticServerConfig},
 };
 
@@ -31,13 +39,16 @@ async fn main() {
 
     let cors = CorsLayer::new()
         .allow_origin(Any)
-        .allow_methods(vec![Method::GET]);
+        .allow_methods(vec![Method::GET, Method::POST])
+        .allow_headers(Any);
 
     let app = Router::new()
         .route("/", get(index_handler))
-        .route("/index_or_content", get(index_or_content))
-        .route("/file", get(download))
-        .route("/folder", get(visit_folder))
+        .route("/root_path", get(root_path))
+        .route("/visit_folder", post(visit_folder))
+        .route("/download_file", post(download_file))
+        .route("/get_root", get(get_root))
+        .route("/folder/:prev", get(folder))
         .layer(cors)
         .layer(Extension(Arc::new(StaticServerConfig { root_dir })))
         .fallback(static_handler.into_service());

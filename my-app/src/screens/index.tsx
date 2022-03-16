@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Avatar, Button, List } from 'antd';
 import {
   FileZipTwoTone,
@@ -8,7 +8,6 @@ import {
   FileUnknownTwoTone,
   FileTextTwoTone,
 } from '@ant-design/icons';
-import qs from 'qs';
 
 export interface PathInfo {
   name: string;
@@ -20,7 +19,10 @@ export interface PathInfo {
 
 interface PathProps {
   list: PathInfo[];
+  path: String;
   setList: any;
+  setPath: any;
+  setPre: any;
 }
 
 const apiUrl = process.env.REACT_APP_API_URL;
@@ -43,7 +45,13 @@ const get_icon = (is_file: boolean, ext: string) => {
   return <FolderOpenTwoTone />;
 };
 
-export const PathList = ({ list, setList }: PathProps) => {
+export const PathList = ({
+  list,
+  setList,
+  setPre,
+  setPath,
+  path,
+}: PathProps) => {
   return (
     <List
       bordered={true}
@@ -60,7 +68,13 @@ export const PathList = ({ list, setList }: PathProps) => {
                   onClick={() => {
                     if (item.is_file) {
                       window
-                        .fetch(`${apiUrl}/file?${qs.stringify(item)}`)
+                        .fetch(`${apiUrl}/download_file`, {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify(item),
+                        })
                         .then(async (response) => {
                           response.blob().then((blob) => {
                             let url = window.URL.createObjectURL(blob);
@@ -72,12 +86,20 @@ export const PathList = ({ list, setList }: PathProps) => {
                         });
                     } else {
                       window
-                        .fetch(`${apiUrl}/folder?${qs.stringify(item)}`)
+                        .fetch(`${apiUrl}/visit_folder`, {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify(item),
+                        })
                         .then(async (response) => {
                           const data = await response.json();
                           if (response.ok) {
                             console.log(data);
                             setList(data);
+                            setPath(item.path_uri);
+                            setPre(path);
                           }
                         });
                     }
